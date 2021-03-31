@@ -1,0 +1,111 @@
+#include "huffman.h"
+#define AMOUNT 256
+
+
+#define TYPE_HUFF const struct hufftree*
+static int treecomp(const void * l, const void * r)
+{
+    TYPE_HUFF left = (TYPE_HUFF) l;
+    TYPE_HUFF right = (TYPE_HUFF) r;
+
+    return (right->weight - left->weight);
+}
+
+
+static void gethash(struct hufftree *node,huffhash* hash, unsigned char *curr, size_t length)
+{
+    printf("%d Deep node->weigth = %d", length, node->weight);
+    if (node == NULL) 
+    {
+        printf("NULLLLLLLL\n");
+    }
+    if (node->leaf == 1)
+    {
+        hash->list[node->value].encoding = (char*) malloc(sizeof(char)*length);
+        hash->list[(size_t)node->value].length = length;
+        strcpy(hash->list[(size_t)node->value].encoding, curr);
+        return;
+    }
+
+    ++length;
+    unsigned char * newcurr = malloc(sizeof(char)*length);
+    strcpy(newcurr, curr);
+    newcurr[length - 1] = '0';
+    gethash(node->left, hash,newcurr, length);
+    newcurr[length - 1] = '1';
+    gethash(node->right, hash, newcurr, length);
+    free(newcurr);
+    return;
+
+}
+
+void huffmanencode(int in, int out)
+{
+    int table[AMOUNT] = {0};
+
+    unsigned char c;
+    while(read(in, &c, 1) != 0)
+    {
+        ++table[c];
+    }
+
+    struct hufftree* tree;
+    tree = malloc(sizeof(struct hufftree) * AMOUNT);
+
+    for(int i = 0; i < AMOUNT; ++i)
+    {
+        tree[i].value = (char) i;
+        tree[i].weight = table[i];
+        tree[i].leaf = 1;
+        tree[i].left = NULL;
+        tree[i].right = NULL;
+    }
+
+    for (int i = 0; i < AMOUNT; i++)
+    {
+        printf("gap %c, %d\n", tree[i].value, tree[i].weight);
+    }
+    qsort(tree, AMOUNT, sizeof(struct hufftree), treecomp);
+
+    for (int i = 0; i < AMOUNT; i++)
+    {
+        printf("gapl %c, %d\n", tree[i].value, tree[i].weight);
+    }
+
+    for (int i = 0; i < AMOUNT; i = i + 2)
+    {
+        struct hufftree* right = &tree[AMOUNT - i -1];
+        struct hufftree* left = &tree[AMOUNT -i - 2];
+        struct hufftree * root = malloc(sizeof(struct hufftree));
+        root->value = 0;
+        root->weight = right->weight + left->weight;
+        root->leaf = 0;
+        root->left = left;
+        root->right = right;
+        int found = 0;
+        for (int u = AMOUNT - i - 3; u > 0; --u)
+        {
+            if (root->weight < tree[u].weight)
+            {
+                tree[u + 1] = *root;
+                found = 1;
+                break;
+            }
+            else
+            {
+                tree[u + 1] = tree[u];
+            }
+            printf("%d NESTED LOOP\n", i);
+        }
+        if (!found)
+        {
+            tree[1] = tree[0];
+            tree[0] = *root;
+        }
+        printf("%d %d\n", i, AMOUNT);
+    }
+    printf("Done\n");
+    unsigned char *empty;
+    huffhash* hash = malloc(sizeof(huffhash));
+    gethash(tree, hash, empty, 0);
+}
