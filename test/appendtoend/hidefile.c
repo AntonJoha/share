@@ -25,15 +25,23 @@ int hidefile(FILE* target, FILE* tohide)
         fprintf(stderr, "Something went wrong with the compression\nEnding...\n");
         exit(EXIT_FAILURE);
     }
+
     fclose(tohide);
     fclose(temp);
-
     fseek(target, SEEK_END);
     temp = fopen(temp, "r");
+    
     unsigned long count = 0;
+    char c;
     while(1)
     {
-
+        if (fscanf(temp, "%c", &c) == EOF)
+        {
+            break;
+        }
+        fprintf(target, "%c", c);
+        ++count;
     }
-}
 
+    fprintf(target, "%lu", count);
+}

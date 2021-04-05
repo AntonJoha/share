@@ -51,6 +51,6 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-#If I happen to forget
+
+#if i happen to forget
 a.out
-test
