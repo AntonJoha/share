@@ -1,7 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include "globalnames.h" 
-
+#include "hiddenfile.h"
+#include "compression.h"
 
 //Is given a ELF file with data hidden at the end. 
 //The last bytes is used to know the size of the file and should be used in combination with fseek to find the right position
@@ -14,18 +19,19 @@ unsigned long getembeddedfilesize(FILE* f)
 
     while(1)
     {
-        fseek(f, SEEK_END - pos);
+        fseek(f, -pos, SEEK_END);
         int res = getc(f);
         if (res == 0 || res == EOF) break;
         res -= '0';
         for (int i = 1; i < pos; ++i) res*=10;
-        toReturn += res;
+        toReturn += res*sizeof(char);
+        ++pos;
     }
 
-    fseek(f, before);
+    fseek(f, before, SEEK_SET);
 
     //Important to add the final informationbytes aswell
-    toReturn += pos;
+    toReturn += pos -1;
     return toReturn;
 }
 
@@ -36,8 +42,9 @@ FILE * getembeddedfile(FILE * f, long pos)
 
     FILE * toReturn = f;
     
-    fseek(f, SEEK_END - pos);
-    return f;
+    fseek(toReturn, -pos,SEEK_END);
+  
+    return toReturn;
 
 }
 
@@ -49,9 +56,14 @@ FILE * getembeddedfile(FILE * f, long pos)
 int decompressembeddedfile_path(FILE * f,const char *p)
 {
     int length = strlen(p);
+    long pos = getembeddedfilesize(f);
+    
+    #define path "out" //THIS IS EXTREMLY TEMPORARY AND ONLY USED FOR A TEST
+    #ifndef path
     char* path = (char*) malloc(sizeof(char)*length);
     strcpy(path, p);
-    long pos = getembeddedfilesize(f);
+    */
+   
     
     //Psuedorandom generation of a name. 
     unsigned int r = (unsigned int) &pos;
@@ -60,7 +72,8 @@ int decompressembeddedfile_path(FILE * f,const char *p)
         if (path[i] != 'X') break;
         else path[i] -= (r % (i % 10));
     }
-
+    #endif
+ 
     //Creates and close the file immediatly. This is done to make sure that the right priviliges are set
     //Only because fopen is used deeper down
     //LONG TERM: GET RID OF FOPEN SO THIS ISN't NEEDED
@@ -77,10 +90,10 @@ int decompressembeddedfile_path(FILE * f,const char *p)
         exit(EXIT_FAILURE);
     }
     fclose(in);
-    fclose(out);;
+    fclose(out);
 
     int toReturn = open(path, O_RDONLY);
-    unlink(path);
+    //unlink(path);
     return toReturn;
 }
 
@@ -90,7 +103,7 @@ int decompressembeddedfile_path(FILE * f,const char *p)
 //This is because the only point of it is to more or less just be executed and discarded.
 int decompressembeddedfile(FILE * f)
 {
-    return decompressembeddedfile_path(f, STANDARDPATH);
+    return decompressembeddedfile_path(f, DEFAULTPATH);
 }
 
 
