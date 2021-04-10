@@ -59,10 +59,8 @@ int compress_conf(FILE* in, FILE * out, int blocksize, int verbosity, int workFa
     BZ2_bzWriteClose(&ret, b, 0, NULL, NULL);
     if (ret =! BZ_OK && ret != BZ_RUN_OK)
     {
-        printf("pog? %d %d %d\n", ret, BZ_SEQUENCE_ERROR, BZ_IO_ERROR);
         ERRORCHECK(ret, "ERROR closing", b);
         return 0;
-        return ret;
     }
     return 0;
 }

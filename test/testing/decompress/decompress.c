@@ -59,18 +59,15 @@ int decompress_conf(FILE* in, FILE* out, int verbosity, int small, void* unused,
     while(ret != BZ_STREAM_END)
     {
         int read = BZ2_bzRead(&ret, b, buf, BUFSIZE);
-        printf("hej\n");
         if (ret != BZ_OK && ret != BZ_STREAM_END)
         {
-            ERRORCHECK(ret, "READ :( ", b);
+            ERRORCHECK(ret, "READ ", b);
         }
         for (int i = 0; i < read; ++i)
         {
             fprintf(out, "%c", buf[i]);
         }
     }
-
-    printf("HERER\n");
     BZ2_bzReadClose(&ret, b);
     ERRORCHECK(ret, "READCLOSE", b);
     return 0;
