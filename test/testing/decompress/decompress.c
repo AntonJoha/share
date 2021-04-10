@@ -59,6 +59,7 @@ int decompress_conf(FILE* in, FILE* out, int verbosity, int small, void* unused,
     while(ret != BZ_STREAM_END)
     {
         int read = BZ2_bzRead(&ret, b, buf, BUFSIZE);
+        printf("Firstread ye\n");
         if (ret != BZ_OK && ret != BZ_STREAM_END)
         {
             ERRORCHECK(ret, "READ ", b);

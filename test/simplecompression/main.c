@@ -7,10 +7,10 @@ int main()
 {
     FILE* in = fopen(IN, "rb");
     FILE* out = fopen(TEMP, "wb");
-    compress(in,out);
+    //compress(in,out);
     fclose(in);
     fclose(out);
-    in = fopen(TEMP, "rb");
+    in = fopen("print.c", "rb");
     out = fopen(OUT, "wb");
     decompress(in,out);
     fclose(in);

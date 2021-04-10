@@ -35,10 +35,8 @@ int hidefile(FILE* target, FILE* tohide)
     fseek(target, 0, SEEK_END);
     temp = fopen(path, "r");
     unlink(path);   
-
     unsigned long count = 0;
-    char c;
-    fprintf(target, "%c", 0);
+    char c = 'a';
     while(1)
     {
         if (fscanf(temp, "%c", &c) == EOF)

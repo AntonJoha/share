@@ -11,21 +11,24 @@
 //Is given a ELF file with data hidden at the end. 
 //The last bytes is used to know the size of the file and should be used in combination with fseek to find the right position
 //The file returns to the same position as it was before
-unsigned long getembeddedfilesize(FILE* f)
+long getembeddedfilesize(FILE* f)
 {
     long pos = 1;
     long before = ftell(f);
-    unsigned long toReturn = 0;
+    long toReturn = 0;
 
     while(1)
     {
         fseek(f, -pos, SEEK_END);
-        int res = getc(f);
-        if (res == 0 || res == EOF) break;
+        long res = getc(f);
         res -= '0';
+        printf("res a is %ld\n", res);
+        if (res > 9 || res < 0) break;
         for (int i = 1; i < pos; ++i) res*=10;
         toReturn += res*sizeof(char);
         ++pos;
+        printf("%ld\n",toReturn);
+
     }
 
     fseek(f, before, SEEK_SET);
@@ -40,11 +43,16 @@ unsigned long getembeddedfilesize(FILE* f)
 FILE * getembeddedfile(FILE * f, long pos)
 {
 
-    FILE * toReturn = f;
-    
-    fseek(toReturn, -pos,SEEK_END);
-  
-    return toReturn;
+    printf("%lu AA\n",pos);
+    fseek(f, -pos,SEEK_END);
+    return f;
+    #define TEMPPATH "hejhejhej"
+    FILE * toReturn = fopen(TEMPPATH, "w");
+    char c;
+    while (fscanf(f, "%c", &c) != EOF) fprintf(toReturn, "%c", c);
+    fclose(toReturn);
+    return fopen(TEMPPATH, "r");
+    #undef TEMPPATH
 
 }
 
@@ -78,7 +86,6 @@ int decompressembeddedfile_path(FILE * f,const char *p)
     //Only because fopen is used deeper down
     //LONG TERM: GET RID OF FOPEN SO THIS ISN't NEEDED
     close(open(path, O_CREAT | O_RDONLY, S_IRWXU));
-
     FILE* in = getembeddedfile(f, pos);
     FILE* out = fopen(path, "w");
 
