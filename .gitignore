@@ -54,3 +54,5 @@ dkms.conf
 
 #if i happen to forget
 a.out
+#Bad idea, no need to keep track of it anymore
+sharedlibrary
