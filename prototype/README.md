@@ -10,10 +10,12 @@ There are three different executables:
 * Constructor
 * Compressor
 * Decompressor
+
 <b> Constructor </b>
 This part is more or less the glue to both of the other ones. It's the one that the user is supposed to call. 
 
 It takes only two arguments, the first is the ELF to compress. The second is the name to give the new file. The argument -h can also be given. 
+
 <b> Compressor </b>
 This executable is called from the constructor. It takes two arguments. The first is the file to compress, and the second is the file to which the compressed file whould be appended.
 
