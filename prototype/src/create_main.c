@@ -22,9 +22,9 @@ int main(int argc, char* argv[])
     }
     char tosystem[256];
 
-    sprintf(tosystem, "cp decompressor/frame %s", argv[2]);
+    sprintf(tosystem, "cp frame %s", argv[2]);
     system(tosystem);
-    sprintf(tosystem, "./compress/compress %s %s", argv[1], argv[2]);
+    sprintf(tosystem, "compress %s %s", argv[1], argv[2]);
     system(tosystem);
     printf("Done compressing.");
 }
